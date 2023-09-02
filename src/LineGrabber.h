@@ -39,6 +39,22 @@ public:
         return std::string(buffer);
     }
 
+    std::string getContentTillEof()
+    {
+        char buffer[1024];
+        memset(buffer, 0, 1024);
+        char * ptr = buffer;
+        if (m_index >= m_size)
+        {
+            return std::string("");
+        }
+        while (m_index < m_size)
+        {
+            *ptr++ = m_buffer[m_index++];
+        }
+        return std::string(buffer);
+    }
+
 private:
     char * m_buffer;
     int m_index;

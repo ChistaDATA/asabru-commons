@@ -10,10 +10,12 @@ const string CRLF = "\r\n";
 
 typedef struct
 {
+    int proxyPort;
     int port;
     string protocol;
     string name;
     string handler;
+    string pipeline;
 } SERVICE;
 
 typedef struct
@@ -68,13 +70,16 @@ typedef struct
 
 typedef struct
 {
+    string name;      // name of the proxy server
     string ipaddress; // ip address of the Remote Endpoint
-    int port;         //  port at which Remote Listens
+    int proxyPort;    // port at which the proxy listens
+    int port;         // target port to which proxy connects
     int r_w;          //  Read Endpoint or Write EndPoint
     string alias;     //  unused
     float reserved;   //  unused
     char Buffer[255]; // unused
-    void * handler;
+    void *handler;
+    string pipeline;  // The pipeline name
 } RESOLVE_ENDPOINT_RESULT;
 
 //====================================

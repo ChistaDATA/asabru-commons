@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(asabru_commons)
-
-# set(OPENSSL_INCLUDE_DIR /opt/homebrew/Cellar/openssl@3/3.1.2/include)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 # # Find OpenSSL library
 # find_package(OpenSSL REQUIRED)
@@ -9,7 +8,7 @@ project(asabru_commons)
 include_directories(../tinyxml2)
 
 # Set C++ standard
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 

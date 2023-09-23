@@ -9,6 +9,7 @@
 #include <iostream>
 #include <ctype.h>
 #include <functional>
+#include <sys/time.h>
 
 #ifdef WINDOWS_OS
     #include <windows.h>

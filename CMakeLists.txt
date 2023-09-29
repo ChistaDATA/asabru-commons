@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(asabru_commons)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
-# # Find OpenSSL library
+# Find OpenSSL library
 # find_package(OpenSSL REQUIRED)
 
 include_directories(../tinyxml2)
@@ -40,6 +40,7 @@ set_target_properties(${PROJECT_NAME}
 
 target_link_libraries(
         ${PROJECT_NAME} 
+          # OpenSSL::SSL
           ${CMAKE_SOURCE_DIR}/lib/tinyxml2/build/libtinyxml2.a)
 
 

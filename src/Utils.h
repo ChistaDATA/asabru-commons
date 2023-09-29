@@ -10,5 +10,6 @@
 using namespace std;
 // for string delimiter
 vector<string> split (string s, string delimiter);
+pair<string, string> ChopLine(string str);
 
 #endif

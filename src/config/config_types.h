@@ -6,8 +6,6 @@
 
 using namespace std;
 
-const string CRLF = "\r\n";
-
 typedef struct
 {
     int proxyPort;

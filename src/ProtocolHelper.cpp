@@ -1,4 +1,5 @@
 #include "ProtocolHelper.h"
+#include "Utils.h"
 
 std::string ProtocolHelper::GetIPAddressAsString(struct sockaddr_in *client_addr)
 {
@@ -21,8 +22,6 @@ bool ProtocolHelper::SetReadTimeOut(SOCKET s, long second)
     struct timeval tv;
     tv.tv_sec = second;
     tv.tv_usec = 0;
-    int timeoutVal = 0;
-    int timeoutValSizeInInt = sizeof(int);
     int timeoutValSizeInTimeVal = sizeof(timeval);
     if (setsockopt(s, SOL_SOCKET, SO_RCVTIMEO,
                    (const char *)&tv, timeoutValSizeInTimeVal) != SOCKET_ERROR)

@@ -5,16 +5,22 @@
 #include <string>
 
 using namespace std;
+
 typedef struct
 {
-    std::string name;       // name of the proxy server
-    std::string ipaddress;  // ip address of the Remote Endpoint
-    int proxyPort;          // port at which the proxy listens
-    int port;               // target port to which proxy connects
-    int r_w;                //  Read Endpoint or Write EndPoint
-    std::string alias;      //  unused
-    float reserved;         //  unused
-    char Buffer[255];       // unused
+    std::string ipaddress; // ip address of the Remote Endpoint
+    int port;              // target port to which proxy connects
+    int r_w;               //  Read Endpoint or Write EndPoint
+    std::string alias;     //  unused
+    float reserved;        //  unused
+    char Buffer[255];      // unused
+} RESOLVED_SERVICE;
+
+typedef struct
+{
+    std::string name; // name of the proxy server
+    int proxyPort;    // port at which the proxy listens
+    std::vector<RESOLVED_SERVICE> services;
 } TARGET_ENDPOINT_CONFIG;
 
 //====================================

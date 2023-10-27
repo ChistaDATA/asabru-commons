@@ -23,7 +23,7 @@ bool ProtocolHelper::SetReadTimeOut(SOCKET s, long second)
     tv.tv_sec = second;
     tv.tv_usec = 0;
     int timeoutValSizeInTimeVal = sizeof(timeval);
-    if (setsockopt(s, SOL_SOCKET, SO_RCVTIMEO,
+    if (setsockopt(s, SOL_SOCKET, SO_KEEPALIVE,
                    (const char *)&tv, timeoutValSizeInTimeVal) != SOCKET_ERROR)
     {
         return true;

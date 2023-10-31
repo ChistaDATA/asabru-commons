@@ -31,6 +31,7 @@ public:
     static std::string GetIPAddressAsString(struct sockaddr_in *client_addr);
     static std::string GetIPPortAsString(struct sockaddr_in *client_addr);
     static bool SetReadTimeOut(SOCKET s, long second);
+    static bool SetKeepAlive(SOCKET s, int flags);
     static bool ReadSocketBuffer(SOCKET s, char *bfr, int size, int *num_read);
     static bool ReadSocketBuffer(SOCKET s, char *bfr, int size);
     static bool WriteSocketBuffer(SOCKET s, char *bfr, int size);

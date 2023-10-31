@@ -23,11 +23,20 @@ bool ProtocolHelper::SetReadTimeOut(SOCKET s, long second)
     tv.tv_sec = second;
     tv.tv_usec = 0;
     int timeoutValSizeInTimeVal = sizeof(timeval);
-    if (setsockopt(s, SOL_SOCKET, SO_KEEPALIVE,
+    if (setsockopt(s, SOL_SOCKET, SO_RCVTIMEO,
                    (const char *)&tv, timeoutValSizeInTimeVal) != SOCKET_ERROR)
     {
         return true;
     }
+    return false;
+}
+
+bool ProtocolHelper::SetKeepAlive(SOCKET s, int flags)
+{
+    if (setsockopt(s, SOL_SOCKET, SO_KEEPALIVE, (void *)&flags, sizeof(flags)) != SOCKET_ERROR) {
+        return true;
+    }
+    perror("ERROR: setsocketopt(), SO_KEEPALIVE");
     return false;
 }
 

@@ -3,7 +3,16 @@ project(asabru_commons)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 # Find OpenSSL library
-# find_package(OpenSSL REQUIRED)
+#find_package(OpenSSL REQUIRED)
+
+# Find Python
+find_package(Python COMPONENTS Interpreter Development)
+if (Python_FOUND)
+    message(STATUS "Python found: ${Python_EXECUTABLE}")
+else()
+    message(FATAL_ERROR "Python not found.")
+endif()
+include_directories(${Python_INCLUDE_DIRS})
 
 include_directories(../tinyxml2)
 
@@ -15,7 +24,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Add compiler warnings
 if (CMAKE_COMPILER_IS_GNUCXX)
     add_compile_options(-Wall)
-endif()
+endif ()
 
 # Set source directory
 set(SOURCE_DIRECTORY "src")
@@ -30,17 +39,18 @@ set(BUILD_DIRECTORY "build")
 set(LIB_DIRECTORY "lib")
 
 # Create a library target
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES} src/CommandDispatcher.h src/ComputationContext.cpp src/ComputationContext.h)
 
 # Set output directory for libraries
-set_target_properties(${PROJECT_NAME} 
-  PROPERTIES 
-    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${LIB_DIRECTORY}
-)
+set_target_properties(${PROJECT_NAME}
+        PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${LIB_DIRECTORY}
+        )
 
 target_link_libraries(
-        ${PROJECT_NAME} 
-          # OpenSSL::SSL
-          ${CMAKE_SOURCE_DIR}/lib/tinyxml2/build/libtinyxml2.a)
+        ${PROJECT_NAME}
+        # OpenSSL::SSL
+        ${PYTHON_LIBRARIES}
+        ${CMAKE_SOURCE_DIR}/lib/tinyxml2/build/libtinyxml2.a)
 
 

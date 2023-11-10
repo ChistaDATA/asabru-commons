@@ -39,7 +39,7 @@ set(BUILD_DIRECTORY "build")
 set(LIB_DIRECTORY "lib")
 
 # Create a library target
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES} src/CommandDispatcher.h src/ComputationContext.cpp src/ComputationContext.h)
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 # Set output directory for libraries
 set_target_properties(${PROJECT_NAME}
@@ -50,7 +50,7 @@ set_target_properties(${PROJECT_NAME}
 target_link_libraries(
         ${PROJECT_NAME}
         # OpenSSL::SSL
-        ${PYTHON_LIBRARIES}
+        ${Python_LIBRARIES}
         ${CMAKE_SOURCE_DIR}/lib/tinyxml2/build/libtinyxml2.a)
 
 

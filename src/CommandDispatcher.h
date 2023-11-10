@@ -13,7 +13,12 @@ private:
 public:
     template<class T>
     static bool RegisterCommand(std::string commandName) {
-        typeFactory->loadPlugin<T>(commandName);
+        try {
+            typeFactory->loadPlugin<T>(commandName);
+            return true;
+        } catch (std::exception &e) {
+            return false;
+        }
     }
     template<class T>
     static T *GetCommand(std::string commandName) {

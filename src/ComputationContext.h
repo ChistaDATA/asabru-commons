@@ -10,10 +10,10 @@
 #include <any>
 
 class ComputationContext {
-private:
-    std::unordered_map<std::string, std::any> symbols;
 
 public:
     void Put(const std::string& k, std::any value);
     std::any Get(const std::string& k);
+
+    std::unordered_map<std::string, std::any> symbols;
 };

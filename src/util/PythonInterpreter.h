@@ -17,7 +17,7 @@ public:
         Py_Finalize();
     }
 
-    int Execute(std::string filename, ComputationContext *context);
+    int Execute(const std::string& filename, ComputationContext *context);
 };
 
 

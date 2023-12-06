@@ -4,19 +4,23 @@
 
 #include "PythonInterpreter.h"
 
-std::string GetStringFromDict(PyObject *dict, std::string key) {
+std::string GetStringFromDict(PyObject *dict, const std::string& key)
+{
     // Get the value associated with the specified key
-    PyObject* value = PyDict_GetItemString(dict, key.c_str());
-    if (value) {
+    PyObject *value = PyDict_GetItemString(dict, key.c_str());
+    if (value)
+    {
         // Check if the returned value is a string
-        if (PyUnicode_Check(value)) {
+        if (PyUnicode_Check(value))
+        {
             // Convert the Python string to a C string
-            const char* c_value = PyUnicode_AsUTF8(value);
+            const char *c_value = PyUnicode_AsUTF8(value);
 
             // Print the result
             std::cout << "Value for key '" << key << "': " << c_value << std::endl;
             return c_value;
-        } else {
+        }
+        else {
             std::cerr << "The value is not a string." << std::endl;
         }
     } else {
@@ -35,13 +39,15 @@ PyObject *createExecutionContext(ComputationContext *context)
         return nullptr;
     }
 
-    for (auto& it: (*context).symbols) {
-        // Do stuff
-        std::cout << it.first;
-        // Add key-value pairs to the dictionary
-        std::string k = it.first;
-        auto v = std::any_cast<std::string>(it.second);
-        PyDict_SetItem(dict, PyUnicode_FromString(k.c_str()), PyUnicode_FromString(v.c_str()));
+    auto params = std::any_cast<std::unordered_map<std::string, std::string>>(context->Get("params"));
+
+    for (const auto &param : params)
+    {
+        PyObject *strA = PyUnicode_FromString(param.first.c_str());
+        PyObject *strB = PyUnicode_FromString(param.second.c_str());
+        PyDict_SetItem(dict, strA, strB);
+        Py_XDECREF(strA);
+        Py_XDECREF(strB);
     }
 
     // Print the dictionary
@@ -50,13 +56,8 @@ PyObject *createExecutionContext(ComputationContext *context)
     return dict;
 }
 
-int PythonInterpreter::Execute(std::string filename, ComputationContext *context) {
-//    wchar_t *program = Py_DecodeLocale(argv[0], NULL);
-//    if (program == NULL)
-//    {
-//        fprintf(stderr, "Fatal error: cannot decode argv[0]\n");
-//        exit(1);
-//    }
+int PythonInterpreter::Execute(const std::string& filename, ComputationContext *context)
+{
 
     if (!std::getenv("PLUGINS_FOLDER_PATH")) {
         throw std::runtime_error("PLUGINS_FOLDER_PATH environment variable is missing!");
@@ -65,7 +66,6 @@ int PythonInterpreter::Execute(std::string filename, ComputationContext *context
 
     PyObject *pName, *pModule;
     PyObject *preExecuteFunc, *executeFunc, *postExecuteFunc;
-    PyObject *pArgs, *pValue;
 
     PyRun_SimpleString("import sys");
     std::string addPluginsPath = "sys.path.append(\"" + pythonPluginsFolderPath + "\")";
@@ -101,9 +101,12 @@ int PythonInterpreter::Execute(std::string filename, ComputationContext *context
                         std::cout << "Execute :" << Py_IsTrue(executeFuncResult) << std::endl;
                         std::string message = "Execution status : " + std::string((Py_IsTrue(executeFuncResult) ? "true" : "false"));
                         context->Put("message", message);
-                        std::string result = GetStringFromDict(executionContext, "result");
+                        std::string result = GetStringFromDict(executionContext, "response");
                         context->Put("response", result);
-                        Py_DECREF(executeFuncResult);
+                        if (executeFuncResult)
+                        {
+                            Py_DECREF(executeFuncResult);
+                        }
                     }
                     else
                     {
@@ -150,7 +153,7 @@ int PythonInterpreter::Execute(std::string filename, ComputationContext *context
     if (Py_FinalizeEx() < 0)
     {
         return 1;
-//        exit(120);
+        //        exit(120);
     }
-//    PyMem_RawFree(program);
+    //    PyMem_RawFree(program);
 }

@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <string>
+#include "TypeFactory.h"
 #include "ComputationContext.h"
 #include "BaseComputationCommand.h"
 

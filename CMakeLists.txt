@@ -1,9 +1,16 @@
 cmake_minimum_required(VERSION 3.15)
 project(asabru_commons)
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
-# Find OpenSSL library
-#find_package(OpenSSL REQUIRED)
+# Add compiler warnings
+if (CMAKE_COMPILER_IS_GNUCXX)
+    add_compile_options(-Wall)
+endif ()
 
 # Find Python
 find_package(Python COMPONENTS Interpreter Development)
@@ -15,16 +22,6 @@ endif()
 include_directories(${Python_INCLUDE_DIRS})
 
 include_directories(../tinyxml2)
-
-# Set C++ standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-# Add compiler warnings
-if (CMAKE_COMPILER_IS_GNUCXX)
-    add_compile_options(-Wall)
-endif ()
 
 # Set source directory
 set(SOURCE_DIRECTORY "src")
@@ -49,8 +46,8 @@ set_target_properties(${PROJECT_NAME}
 
 target_link_libraries(
         ${PROJECT_NAME}
-        # OpenSSL::SSL
         ${Python_LIBRARIES}
-        ${CMAKE_SOURCE_DIR}/lib/tinyxml2/build/libtinyxml2.a)
+        ${CMAKE_SOURCE_DIR}/lib/tinyxml2/build/libtinyxml2.a
+)
 
 

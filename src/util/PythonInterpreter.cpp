@@ -156,4 +156,5 @@ int PythonInterpreter::Execute(const std::string& filename, ComputationContext *
         //        exit(120);
     }
     //    PyMem_RawFree(program);
+    return 0;
 }

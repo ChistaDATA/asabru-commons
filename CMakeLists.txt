@@ -12,6 +12,9 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     add_compile_options(-Wall)
 endif ()
 
+# Find OpenSSL library
+find_package(OpenSSL REQUIRED)
+
 # Find Python
 find_package(Python COMPONENTS Interpreter Development)
 if (Python_FOUND)
@@ -21,7 +24,12 @@ else()
 endif()
 include_directories(${Python_INCLUDE_DIRS})
 
+# TinyXML
 include_directories(../tinyxml2)
+
+# Find SqlLite3
+find_package (SQLite3 REQUIRED)
+include_directories(${SQLite3_INCLUDE_DIRS})
 
 # Set source directory
 set(SOURCE_DIRECTORY "src")
@@ -46,8 +54,10 @@ set_target_properties(${PROJECT_NAME}
 
 target_link_libraries(
         ${PROJECT_NAME}
-        ${Python_LIBRARIES}
-        ${CMAKE_SOURCE_DIR}/lib/tinyxml2/build/libtinyxml2.a
+        PUBLIC OpenSSL::SSL
+        PUBLIC ${SQLite3_LIBRARIES}
+        PUBLIC ${Python_LIBRARIES}
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../tinyxml2/build/libtinyxml2.a
 )
 
 

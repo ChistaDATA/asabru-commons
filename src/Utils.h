@@ -6,17 +6,16 @@
 #include <set>
 #include <cstring>
 
-using namespace std;
 class Utils
 {
 public:
     static std::vector<std::string> split(std::string s, std::string delimiter)
     {
         size_t pos_start = 0, pos_end, delim_len = delimiter.length();
-        string token;
-        vector<string> res;
+        std::string token;
+        std::vector<std::string> res;
 
-        while ((pos_end = s.find(delimiter, pos_start)) != string::npos)
+        while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos)
         {
             token = s.substr(pos_start, pos_end - pos_start);
             pos_start = pos_end + delim_len;
@@ -31,20 +30,20 @@ public:
         char buffer[4096];
         ::strcpy(buffer, str.c_str());
         char *ptr = buffer;
-        string key;
-        string value;
+        std::string key;
+        std::string value;
         while (*ptr != 0 && *ptr != ':')
         {
             ptr++;
         }
         if (*ptr == 0)
         {
-            return pair<string, string>("", "");
+            return std::pair<std::string, std::string>{"", ""};
         }
         *ptr++ = 0;
-        key = string(buffer);
-        value = string(ptr);
-        return pair<string, string>(key, value);
+        key = std::string(buffer);
+        value = std::string(ptr);
+        return std::pair<std::string, std::string>{key, value};
     };
     static void printStringWithEscapes(const std::string &input)
     {

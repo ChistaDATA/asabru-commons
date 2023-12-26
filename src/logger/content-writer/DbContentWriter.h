@@ -11,7 +11,7 @@ public:
         if (access->Open())
         {
             std::string query = "CREATE TABLE IF NOT EXISTS logs (logcontent TEXT);";
-            bool result = access->executeQuery(query);
+            access->executeQuery(query);
             access->Close();
         }
     }

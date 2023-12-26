@@ -27,7 +27,7 @@ public:
     void initFileContentWriter() {
         fileName = getCurrentDate();
         std::string logFileName = "asabru-log-" + fileName + ".txt";
-        cout << logFileName << endl;
+        std::cout << logFileName << std::endl;
         this->wt = new FileContentWriter(logFileName);
     }
 

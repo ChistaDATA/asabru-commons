@@ -4,8 +4,6 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-
 typedef struct
 {
     std::string ipaddress; // ip address of the Remote Endpoint

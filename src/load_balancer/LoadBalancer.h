@@ -15,6 +15,10 @@ public:
         servers.push_back(server);
     }
 
+    void removeAllServers() {
+        servers.clear();
+    }
+
     T requestServer() {
         return strategy->selectServer(servers);
     }

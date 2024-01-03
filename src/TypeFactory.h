@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include "util/globothy.h"
 #include "util/libnameothy.h"
+#include "logger/Logger.h"
 #include <set>
 #include <dlfcn.h>
 #include <algorithm>
@@ -27,7 +28,7 @@ public:
         if (!std::getenv("PLUGINS_FOLDER_PATH")) {
             throw std::runtime_error("PLUGINS_FOLDER_PATH environment variable is missing");
         }
-        std::cout << "Checking for new libraries :" << std::endl;
+        LOG_INFO("Checking for new libraries :");
         std::string pluginsFolderPath = std::getenv("PLUGINS_FOLDER_PATH");
 
 #if __APPLE__
@@ -48,8 +49,7 @@ public:
 
         if (after - before > 0)
         {
-            std::cout << "Found " << after - before << " new plugins";
-            std::cout << std::endl;
+            LOG_INFO("Found " + std::to_string(after - before) + " new plugins");
         }
     }
 

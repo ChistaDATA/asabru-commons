@@ -11,32 +11,39 @@ public:
 
     std::string getNextLine()
     {
-        char buffer[1024];
-        memset(buffer, 0, 1024);
+        int buffer_size = 1024;
+        char buffer[buffer_size];
+        memset(buffer, 0, buffer_size);
         char * ptr = buffer;
         if (m_index >= m_size)
         {
-            return std::string("");
+            return {""};
         }
+        int curr_buffer_size = 0;
         while (m_index < m_size)
         {
-            if (m_buffer[m_index] != 13 && m_buffer[m_index] != 10)
+            if (curr_buffer_size > buffer_size) return {""};
+            if (m_buffer[m_index] != 13 && m_buffer[m_index] != 10) {
                 *ptr++ = m_buffer[m_index++];
+                curr_buffer_size++;
+            }
             else
             {
                 if (m_buffer[m_index] == 13)
                 {
                     m_index += 2;
+                    curr_buffer_size += 2;
                     break;
                 }
                 else if (m_buffer[m_index] == 10)
                 {
                     m_index++;
+                    curr_buffer_size++;
                     break;
                 }
             }
         }
-        return std::string(buffer);
+        return {buffer};
     }
 
     std::string getContentTillEof()

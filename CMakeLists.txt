@@ -12,6 +12,9 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     add_compile_options(-Wall)
 endif ()
 
+# Set DEBUG preprocessor flag
+add_compile_definitions(DEBUG)
+
 # Find OpenSSL library
 find_package(OpenSSL REQUIRED)
 

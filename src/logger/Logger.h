@@ -6,6 +6,7 @@
 #include "util/ThreadSafeQueue.h"
 #include "content-writer/BaseContentWriter.h"
 #include <cstdlib>
+#include <utility>
 
 class Logger
 {
@@ -81,8 +82,16 @@ public:
     void Log(std::string app, std::string key, std::string cause)
     {
         std::unique_lock<std::mutex> lock(mutex_);
-        lf->Log(app, key, cause);
+        lf->Log(std::move(app), std::move(key), std::move(cause));
         lock.unlock();
         logCondition.notify_one();
     }
 };
+
+#ifdef DEBUG
+    #define LOG_INFO( msg ) Logger::getInstance()->Log( "[" + std::string(__FILE__) + " line:" + std::to_string(__LINE__) + "]", "INFO", msg )
+    #define LOG_ERROR( msg ) Logger::getInstance()->Log( "[" + std::string(__FILE__) + " line:" + std::to_string(__LINE__) + "]", "ERROR", msg )
+#else
+    #define LOG_INFO( msg )
+    #define LOG_ERROR( msg )
+#endif

@@ -45,29 +45,30 @@ public:
         value = std::string(ptr);
         return std::pair<std::string, std::string>{key, value};
     };
-    static void printStringWithEscapes(const std::string &input)
+    static std::string printStringWithEscapes(const std::string &input)
     {
+        std::string result;
         for (char c : input)
         {
             switch (c)
             {
             case '\n':
-                std::cout << "\\n";
+                result += "\\n";
                 break;
             case '\r':
-                std::cout << "\\r";
+                result += "\\r";
                 break;
             case '\t':
-                std::cout << "\\t";
+                result += "\\t";
                 break;
             case '\\':
-                std::cout << "\\\\";
+                result += "\\\\";
                 break;
             // Add more cases for other escape sequences as needed
             default:
-                std::cout << c;
+                result += c;
             }
         }
-        std::cout << std::endl;
+        return result;
     }
 };

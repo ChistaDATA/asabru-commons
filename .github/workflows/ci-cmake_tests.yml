@@ -1,0 +1,68 @@
+name: CMake Tests
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build-tinyxml:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout TinyXML
+        uses: actions/checkout@v4
+        with:
+          repository: leethomason/tinyxml2
+          ref: master
+
+      - name: Set up CMake
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+
+      - name: Build TinyXML
+        id: build-tinyxml
+        run: |
+          cd build
+          make
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # Upload the 'important_data.txt' file as an artifact
+          name: build-tinyxml
+          path: build/libtinyxml2.a
+
+  build:
+    needs: build-tinyxml
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download artifact from build-tinyxml
+      uses: actions/download-artifact@v4
+      with:
+        name: build-tinyxml
+        path: ${{runner.workspace}}/tinyxml2/build
+
+    - name: Configure CMake
+      run: cmake -S $GITHUB_WORKSPACE -B ${{runner.workspace}}/build
+
+    - name: Build
+      working-directory: ${{runner.workspace}}/build
+      run: cmake --build .
+
+    - name: Test
+      working-directory: ${{runner.workspace}}/build
+      run: GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ctest -V
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: test_results_xml
+        path: ${{runner.workspace}}/build/test-results/**/*.xml

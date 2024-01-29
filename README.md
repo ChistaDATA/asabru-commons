@@ -21,3 +21,22 @@ cd build
 cmake ..
 make
 ```
+
+### Run Tests
+
+```
+cd build
+ctest
+```
+
+### Coverage
+
+```
+cd build
+cmake ..;make;
+make gcov;
+make coverage;
+```
+
+The coverage report will be generated at build/gcoverage/coverage.html
+

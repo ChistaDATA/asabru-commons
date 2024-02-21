@@ -8,6 +8,7 @@ class NetworkContentWriter: public BaseContentWriter
 public:
     std::string domain;
     int port;
+    TcpClient *_client;
     NetworkContentWriter() {
         if (std::getenv("NETWORK_LOGGER_HOST")) {
             domain = std::string(std::getenv("NETWORK_LOGGER_HOST"));
@@ -20,12 +21,13 @@ public:
         } else {
             port = 5170;
         }
+
+        _client = new TcpClient(domain.c_str(), port);
     }
 
 
     bool WriteToMedia(std::string content) override
     {
-        TcpClient *_client = new TcpClient(domain.c_str(), port);
         _client->sendTcpMessage(std::string(content + "\n").c_str());
         return true;
     }

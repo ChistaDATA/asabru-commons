@@ -28,6 +28,7 @@ public:
 
     bool WriteToMedia(std::string content) override
     {
+        std::cout << std::string(content + "\n");
         _client->sendTcpMessage(std::string(content + "\n").c_str());
         return true;
     }

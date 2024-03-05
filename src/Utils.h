@@ -45,7 +45,7 @@ public:
         value = std::string(ptr);
         return std::pair<std::string, std::string>{key, value};
     };
-    static std::string printStringWithEscapes(const std::string &input)
+    static std::string getStringWithEscapes(const std::string &input)
     {
         std::string result;
         for (char c : input)

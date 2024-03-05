@@ -22,10 +22,10 @@ TEST(UtilsTest, ChopLine) {
 }
 
 
-TEST(UtilsTest, printStringWithEscapes) {
+TEST(UtilsTest, getStringWithEscapes) {
     std::string example = "Hello\nWorld";
 
-    std::string result = Utils::printStringWithEscapes(example);
+    std::string result = Utils::getStringWithEscapes(example);
 
     EXPECT_STREQ(result.c_str(), "Hello\\nWorld");
 }

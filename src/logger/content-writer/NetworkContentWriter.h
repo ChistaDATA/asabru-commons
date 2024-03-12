@@ -2,6 +2,7 @@
 #include "BaseContentWriter.h"
 #include "../util/TcpClient.h"
 #include <string>
+#include <algorithm>
 
 class NetworkContentWriter: public BaseContentWriter
 {
@@ -28,8 +29,7 @@ public:
 
     bool WriteToMedia(std::string content) override
     {
-        std::cout << std::string(content + "\n");
-        _client->sendTcpMessage(std::string(content + "\n").c_str());
+        _client->sendTcpMessage(content);
         return true;
     }
 };

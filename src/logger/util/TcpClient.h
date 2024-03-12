@@ -53,10 +53,10 @@ public:
         close(_clientSocket);
     }
 
-    bool sendTcpMessage(const char *content)
+    bool sendTcpMessage(std::string content)
     {
         // Send a message to the server
-        ssize_t bytesSent = send(_clientSocket, content, strlen(content), 0);
+        ssize_t bytesSent = send(_clientSocket, content.c_str(), content.size(), 0);
         if (bytesSent == -1)
         {
             std::cerr << "Error sending data to the server" << std::endl;

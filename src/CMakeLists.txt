@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(asabru_commons VERSION 1.0)
 
 # Set C++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
@@ -29,6 +29,7 @@ include_directories(${Python_INCLUDE_DIRS})
 
 # TinyXML
 include_directories(../../tinyxml2)
+include_directories(../../stduuid/include)
 
 # Find SqlLite3
 find_package (SQLite3 REQUIRED)
@@ -53,7 +54,6 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}
 )
-
 
 # Set output directory for libraries
 set_target_properties(${PROJECT_NAME}

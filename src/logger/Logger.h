@@ -89,9 +89,15 @@ public:
 };
 
 #ifdef DEBUG
-    #define LOG_INFO( msg ) Logger::getInstance()->Log( "[" + std::string(__FILE__) + " line:" + std::to_string(__LINE__) + "]", "INFO", msg )
-    #define LOG_ERROR( msg ) Logger::getInstance()->Log( "[" + std::string(__FILE__) + " line:" + std::to_string(__LINE__) + "]", "ERROR", msg )
+    #define LOG_GENERIC(_msg, _key) Logger::getInstance()->Log("[" + std::string(__FILE__) + " line:" + std::to_string(__LINE__) + "]", _key, _msg);
+    #define LOG_INFO( msg ) LOG_GENERIC(msg, "INFO")
+    #define LOG_ERROR( msg ) LOG_GENERIC(msg, "ERROR")
+    #define LOG_QUERY( id, msg ) Logger::getInstance()->Log(id, "QUERY", msg);
+    #define LOG_LATENCY( id, msg ) Logger::getInstance()->Log(id, "LATENCY", msg);
 #else
+    #define LOG_GENERIC (msg, key)
     #define LOG_INFO( msg )
     #define LOG_ERROR( msg )
+    #define LOG_QUERY( msg )
+    #define LOG_LATENCY( msg )
 #endif

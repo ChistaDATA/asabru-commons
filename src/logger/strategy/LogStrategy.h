@@ -9,7 +9,7 @@ public:
     // DoLog is our Template method
     // Concrete classes will override this
     virtual bool DoLog(std::string logItem) = 0;
-    bool Log(std::string app, std::string key, std::string cause)
+    virtual bool Log(std::string app, std::string key, std::string cause)
     {
         return DoLog(app + " " + key + " " + cause);
     }

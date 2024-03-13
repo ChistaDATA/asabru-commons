@@ -6,8 +6,8 @@
 
 // Abstract base class for load balancing strategies
 template <class T>
-class LoadBalancingStrategy {
+class LoadBalancerStrategy {
 public:
     virtual T selectServer(const std::vector<T>& servers) const = 0;
-    virtual ~LoadBalancingStrategy() = default;
+    virtual ~LoadBalancerStrategy() = default;
 };

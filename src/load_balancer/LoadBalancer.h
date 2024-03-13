@@ -5,11 +5,11 @@
 template <class T>
 class LoadBalancer {
 private:
-    LoadBalancingStrategy<T>* strategy;
+    LoadBalancerStrategy<T>* strategy;
     std::vector<T> servers;
 
 public:
-    explicit LoadBalancer<T>(LoadBalancingStrategy<T>* strategy) : strategy(strategy) {}
+    explicit LoadBalancer<T>(LoadBalancerStrategy<T>* strategy) : strategy(strategy) {}
 
     void addServer(T server) {
         servers.push_back(server);

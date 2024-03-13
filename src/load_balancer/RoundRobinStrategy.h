@@ -4,7 +4,7 @@
 
 // Concrete implementation of a round-robin load balancing strategy
 template <class T>
-class RoundRobinStrategy : public LoadBalancingStrategy<T> {
+class RoundRobinStrategy : public LoadBalancerStrategy<T> {
 public:
     T selectServer(const std::vector<T>& servers) const override {
         static int currentIndex = -1;

@@ -9,7 +9,7 @@ public:
 };
 // Concrete implementation of a weighted round-robin load balancing strategy
 template <class T, typename = std::enable_if<std::is_base_of<WeightedItem, T>::value>>
-class WeightedRoundRobinStrategy : public LoadBalancingStrategy<T> {
+class WeightedRoundRobinStrategy : public LoadBalancerStrategy<T> {
 public:
     T selectServer(const std::vector<T>& servers) const override {
         static int currentIndex = -1;

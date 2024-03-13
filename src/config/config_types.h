@@ -12,6 +12,7 @@ typedef struct
     std::string alias;     //  unused
     float reserved;        //  unused
     char Buffer[255];      // unused
+    int weight;            // This property will be used in the case of weighted round robin load balancing
 } RESOLVED_SERVICE;
 
 typedef struct

@@ -3,9 +3,9 @@
 
 // Concrete implementation of a random load balancing strategy
 template <class T>
-class RandomStrategy : public LoadBalancingStrategy<T> {
+class RandomStrategy : public LoadBalancerStrategy<T> {
 public:
-    int selectServer(const std::vector<int>& servers) const override {
+    T selectServer(const std::vector<T>& servers) const override {
         return servers[rand() % servers.size()];
     }
 };

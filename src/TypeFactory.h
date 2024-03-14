@@ -67,6 +67,12 @@ public:
         std::string plugin = *it;
         try
         {
+            std::pair<std::string, std::string> delibbed = libnameothy(plugin);
+            if (commands_map[delibbed.second] != nullptr) {
+                // Command already loaded
+                return;
+            }
+
             void *dlhandle = dlopen(plugin.c_str(), RTLD_LAZY);
 
             if (dlhandle == NULL)
@@ -74,9 +80,6 @@ public:
                 printf("Error: %s\n", dlerror());
                 exit(1);
             }
-
-            std::pair<std::string, std::string> delibbed =
-                    libnameothy(plugin);
 
             T *(*create)();
             void (*destroy)(T *);

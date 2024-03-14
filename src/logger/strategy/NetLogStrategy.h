@@ -37,7 +37,9 @@ public:
                 return DoLog("{\"type\": \"query\",\"query\":\"" + cause + "\",\"correlation_id\":\"" + app + "\"}\n");
             }
             case LogCode::LATENCY : {
-                return DoLog("{\"type\": \"latency\",\"latency\": " + cause + ",\"correlation_id\":\"" + app + "\"}\n");
+                std::vector<std::string> params = Utils::split(cause, ",");
+                std::cout <<  "latency: " << params[0] << " " << "client_ip: " << params[1] << " " << "correlation_id: " << app << std::endl;
+                return DoLog("{\"type\": \"latency\",\"latency\": \"" + params[0] + "\",\"correlation_id\":\"" + app + "\",\"host\": \"" + params[1] + "\"}\n");
             }
             default: {
                 std::cout <<  app + " " + key + " " + cause  << std::endl;

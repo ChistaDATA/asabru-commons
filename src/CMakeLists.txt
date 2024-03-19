@@ -35,6 +35,9 @@ include_directories(../../stduuid/include)
 find_package (SQLite3 REQUIRED)
 include_directories(${SQLite3_INCLUDE_DIRS})
 
+# Add jwt-cpp library
+include_directories(../../jwt-cpp/include)
+
 # Set source directory
 set(SOURCE_DIRECTORY ".")
 

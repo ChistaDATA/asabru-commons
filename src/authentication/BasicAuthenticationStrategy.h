@@ -1,31 +1,32 @@
 #pragma once
 #include <any>
-#include <unordered_set>
-#include <shared_mutex>
 #include "AuthenticationStrategy.h"
+#include "MemoryMappedListFile.h"
 #include "jwt-cpp/jwt.h"
 
-// Concrete implementation of a basic authentication strategy using JSON Web Tokens
+// Concrete imlementation of a basic authentication strategy using json web tokens
 class BasicAuthenticationStrategy : public AuthenticationStrategy
 {
 private:
     std::string secret;
     std::string username;
     std::string password;
-    mutable std::unordered_set<std::string> blacklistedTokens;
-    mutable std::shared_mutex mutex; // Shared mutex for protecting the blacklist
+    MemoryMappedListFile blacklistedTokens;
     const std::string jwt_issuer = "auth0";
     const std::string jwt_type = "JWS";
+    int expiration;
 
 public:
     BasicAuthenticationStrategy() : secret(std::getenv("AUTH_BASIC_SECRET") ? std::getenv("AUTH_BASIC_SECRET") : throw std::runtime_error("AUTH_BASIC_SECRET environment variable not set")),
                                     username(std::getenv("AUTH_BASIC_USERNAME") ? std::getenv("AUTH_BASIC_USERNAME") : throw std::runtime_error("AUTH_BASIC_USERNAME environment variable not set")),
-                                    password(std::getenv("AUTH_BASIC_PASSWORD") ? std::getenv("AUTH_BASIC_PASSWORD") : throw std::runtime_error("AUTH_BASIC_PASSWORD environment variable not set"))
+                                    password(std::getenv("AUTH_BASIC_PASSWORD") ? std::getenv("AUTH_BASIC_PASSWORD") : throw std::runtime_error("AUTH_BASIC_PASSWORD environment variable not set")),
+                                    expiration(std::getenv("AUTH_BASIC_EXPIRATION") ? std::stoi(std::getenv("AUTH_BASIC_EXPIRATION")) : 3600),
+                                    blacklistedTokens(std::getenv("AUTH_BASIC_BLACKLIST_FILE_PATH") ? std::getenv("AUTH_BASIC_BLACKLIST_FILE_PATH") : throw std::runtime_error("AUTH_BASIC_BLACKLIST_FILE_PATH environment variable not set"))
     {
     }
-    
     void authenticate(ComputationContext *context) const override
     {
+
         const std::string username = std::any_cast<std::string>(context->Get("username"));
         const std::string password = std::any_cast<std::string>(context->Get("password"));
 
@@ -35,6 +36,9 @@ public:
                              .set_issuer(jwt_issuer)
                              .set_type(jwt_type)
                              .set_payload_claim("username", jwt::claim(std::string(username)))
+                             .set_issued_at(std::chrono::system_clock::now())
+                             .set_expires_in(std::chrono::seconds{expiration})
+                             .set_not_before(std::chrono::system_clock::now())
                              .sign(jwt::algorithm::hs256{secret});
             context->Put("token", token);
             context->Put("authenticated", true);
@@ -48,16 +52,11 @@ public:
     void isAuthenticated(ComputationContext *context) override
     {
         const std::string token = std::any_cast<std::string>(context->Get("token"));
-        
-        // Use shared_lock for read operations
-        std::shared_lock<std::shared_mutex> lock(mutex);
-        if (blacklistedTokens.find(token) != blacklistedTokens.end())
+        if (blacklistedTokens.isPresent(token))
         {
             context->Put("authenticated", false);
             return;
         }
-        lock.unlock(); // Unlock
-        
         try
         {
             jwt::decoded_jwt decoded = jwt::decode(token);
@@ -76,9 +75,6 @@ public:
     void removeAuthentication(ComputationContext *context) override
     {
         const std::string &token = std::any_cast<std::string>(context->Get("token"));
-        
-        // Use unique_lock for write operations
-        std::unique_lock<std::shared_mutex> lock(mutex);
-        blacklistedTokens.insert(token);
-    } // lock released here
+        blacklistedTokens.add(token);
+    }
 };

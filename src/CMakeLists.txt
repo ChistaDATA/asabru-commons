@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(asabru_commons VERSION 1.0)
+# Enables generation of compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)

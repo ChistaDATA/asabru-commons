@@ -88,7 +88,7 @@ public:
     }
 };
 
-#ifdef DEBUG
+#if DEBUG
     #define LOG_GENERIC(_msg, _key) Logger::getInstance()->Log("[" + std::string(__FILE__) + " line:" + std::to_string(__LINE__) + "]", _key, _msg);
     #define LOG_INFO( msg ) LOG_GENERIC(msg, "INFO")
     #define LOG_ERROR( msg ) LOG_GENERIC(msg, "ERROR")
@@ -98,6 +98,6 @@ public:
     #define LOG_GENERIC (msg, key)
     #define LOG_INFO( msg )
     #define LOG_ERROR( msg )
-    #define LOG_QUERY( msg )
-    #define LOG_LATENCY( msg )
+    #define LOG_QUERY( id, msg )
+    #define LOG_LATENCY( id, msg )
 #endif

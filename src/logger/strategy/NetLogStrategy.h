@@ -2,6 +2,7 @@
 #include "../../Utils.h"
 #include "../content-writer/NetworkContentWriter.h"
 #include "LogStrategy.h"
+#include <regex>
 
 enum LogCode { INFO, ERROR, QUERY, LATENCY };
 
@@ -22,6 +23,9 @@ class NetLogStrategy : public LogStrategy {
 	}
 
 	bool Log(std::string app, std::string key, std::string cause) override {
+		// Escape the double quotes. Otherwise the JSON constructed can be
+		// invalid if double quotes are present in the cause
+		cause = std::regex_replace(cause, std::regex("\""), "\\\"");
 		switch (getLogCode(key)) {
 		case LogCode::QUERY: {
 			return DoLog("{\"type\": \"query\",\"query\":\"" + cause + "\",\"correlation_id\":\"" + app + "\"}\n");

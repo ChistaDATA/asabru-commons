@@ -1,7 +1,7 @@
 #pragma once
 #include <any>
 #include "AuthenticationStrategy.h"
-#include "MemoryMappedListFile.h"
+#include "CachedFileList.h"
 #include "jwt-cpp/jwt.h"
 
 // Concrete imlementation of a basic authentication strategy using json web tokens
@@ -11,10 +11,35 @@ private:
     std::string secret;
     std::string username;
     std::string password;
-    MemoryMappedListFile blacklistedTokens;
+    CachedFileList blacklistedTokens;
     const std::string jwt_issuer = "auth0";
     const std::string jwt_type = "JWS";
     int expiration;
+    std::thread compactThread;
+    bool stopThread = false;
+
+    void compactThreadFunction() {
+        while (!stopThread) {
+            std::this_thread::sleep_for(std::chrono::hours(1));
+            LOG_INFO("Compacting blacklisted tokens file");
+            auto allTokens = blacklistedTokens.getAll();
+            auto verifiedTokens = jwt::verify()
+                                      .allow_algorithm(jwt::algorithm::hs256{secret})
+                                      .with_issuer(jwt_issuer);
+            
+            for (const auto &token : allTokens) {
+                try {
+                    jwt::decoded_jwt decoded = jwt::decode(token);
+                    verifiedTokens.verify(decoded);
+                } catch (const std::exception &e) {
+                    blacklistedTokens.remove(token);
+                }
+            }
+
+            blacklistedTokens.compactFile();
+        }
+    }
+
 
 public:
     BasicAuthenticationStrategy() : secret(std::getenv("AUTH_BASIC_SECRET") ? std::getenv("AUTH_BASIC_SECRET") : throw std::runtime_error("AUTH_BASIC_SECRET environment variable not set")),
@@ -23,7 +48,16 @@ public:
                                     expiration(std::getenv("AUTH_BASIC_EXPIRATION") ? std::stoi(std::getenv("AUTH_BASIC_EXPIRATION")) : 3600),
                                     blacklistedTokens(std::getenv("AUTH_BASIC_BLACKLIST_FILE_PATH") ? std::getenv("AUTH_BASIC_BLACKLIST_FILE_PATH") : throw std::runtime_error("AUTH_BASIC_BLACKLIST_FILE_PATH environment variable not set"))
     {
+        compactThread = std::thread(&BasicAuthenticationStrategy::compactThreadFunction, this);
     }
+
+    ~BasicAuthenticationStrategy() {
+        stopThread = true;
+        if (compactThread.joinable()) {
+            compactThread.join();
+        }
+    }
+
     void authenticate(ComputationContext *context) const override
     {
 
@@ -52,7 +86,7 @@ public:
     void isAuthenticated(ComputationContext *context) override
     {
         const std::string token = std::any_cast<std::string>(context->Get("token"));
-        if (blacklistedTokens.isPresent(token))
+        if (blacklistedTokens.find(token))
         {
             context->Put("authenticated", false);
             return;

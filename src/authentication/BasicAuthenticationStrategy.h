@@ -40,7 +40,6 @@ private:
         }
     }
 
-
 public:
     BasicAuthenticationStrategy() : secret(std::getenv("AUTH_BASIC_SECRET") ? std::getenv("AUTH_BASIC_SECRET") : throw std::runtime_error("AUTH_BASIC_SECRET environment variable not set")),
                                     username(std::getenv("AUTH_BASIC_USERNAME") ? std::getenv("AUTH_BASIC_USERNAME") : throw std::runtime_error("AUTH_BASIC_USERNAME environment variable not set")),

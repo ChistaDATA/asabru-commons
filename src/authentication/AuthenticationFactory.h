@@ -14,5 +14,6 @@ public:
             LOG_ERROR(error);
             throw std::runtime_error(error);
         }
+        return nullptr;
     }
 };

@@ -4,10 +4,11 @@
 #include <vector>
 #include <unordered_map>
 #include <map>
+#include <any>
 
 const std::string CRLF = "\r\n";
 
-typedef struct std::unordered_map<std::string, void *> EXECUTION_CONTEXT;
+typedef struct std::unordered_map<std::string, std::any> EXECUTION_CONTEXT;
 
 struct HttpMetadata
 {

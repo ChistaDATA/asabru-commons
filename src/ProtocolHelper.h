@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "util/endian.h"
 #include <iostream>
 #include <ctype.h>
 #include <functional>
@@ -24,6 +25,24 @@
 #endif
 
 #define SOCKET_ERROR (-1)
+
+static uint32_t readInt32(std::string buffer, int start, int length = 4) {
+    const std::string packet_length_nw_bytes = buffer.substr(start, length);
+    uint32_t packet_length_nw = 0;
+    memcpy(&packet_length_nw, &packet_length_nw_bytes, length);
+    const uint32_t packet_length = le32toh(packet_length_nw);
+    return packet_length;
+}
+
+static std::string readCString(std::string buffer, int start) {
+    std::string name;
+    int i = start;
+    while (buffer[i] != '\0') {
+        name += buffer[i];
+        i++;
+    }
+    return name;
+}
 
 class ProtocolHelper
 {

@@ -44,6 +44,37 @@ static std::string readCString(std::string buffer, int start) {
 	return name;
 }
 
+static uint8_t readByte(std::string buffer, int start) { return buffer[start]; };
+
+static uint16_t readLEInt16(std::string buffer, int start) {
+	const int length = 2;
+	const std::string packet_length_nw_bytes = buffer.substr(start, length);
+	uint32_t packet_length_nw = 0;
+	memcpy(&packet_length_nw, &packet_length_nw_bytes, length);
+	const uint32_t packet_length = le16toh(packet_length_nw);
+	return packet_length;
+}
+
+static uint32_t readLEInt24(std::string buffer, int start) {
+	const int length = 3;
+	std::string packet_length_nw_bytes = buffer.substr(start, length);
+	// if size if 3, make it 4 bytes by adding a null byte at the end
+	packet_length_nw_bytes += char(0x00);
+	uint32_t packet_length_nw = 0;
+	memcpy(&packet_length_nw, &packet_length_nw_bytes, length + 1);
+	const uint32_t packet_length = le32toh(packet_length_nw);
+	return packet_length;
+}
+
+static uint64_t readLEInt64(std::string buffer, int start) {
+	const int length = 8;
+	const std::string packet_length_nw_bytes = buffer.substr(start, length);
+	uint64_t packet_length_nw = 0;
+	memcpy(&packet_length_nw, &packet_length_nw_bytes, length);
+	const uint64_t packet_length = le64toh(packet_length_nw);
+	return packet_length;
+};
+
 class ProtocolHelper {
   public:
 	static std::string GetIPAddressAsString(struct sockaddr_in *client_addr);

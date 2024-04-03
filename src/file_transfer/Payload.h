@@ -67,7 +67,7 @@ typedef struct
 /**
  * Generates the file metadata packet struct
 */
-T_FILE_META MakeFileMeta(char *file_name, long size);
+T_FILE_META MakeFileMeta(const char *file_name, long size);
 
 /**
  * Generates the handshake packet struct
@@ -97,6 +97,6 @@ T_FILE_FATAL_ERROR MakeErrorPack(char *buffer, int len);
 /**
  * Computes the file size of the input file 
 */
-long ComputeFileSize(char *file_name);
+long ComputeFileSize(const char *file_name);
 
 #endif

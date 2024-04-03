@@ -3,12 +3,12 @@
 // UNIX/Linux-specific definitions
 #define SOCKET int
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "util/endian.h"
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include "util/endian_utils.h"
 #include <iostream>
-#include <ctype.h>
+#include <cctype>
 #include <functional>
 #include <sys/time.h>
 

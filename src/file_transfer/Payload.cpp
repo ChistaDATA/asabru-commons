@@ -10,8 +10,8 @@
     #include <netdb.h>        // contains definitions for network database operations.
     #include <pthread.h>      // contains function declarations and mappings for threading interfaces and defines a number of constants used by those functions.
 #endif
-#include <cstring>           // contains helper functions for string operations
-#include <cstdio>            // contains declarations and functions to help with input output operations
+#include <string.h>           // contains helper functions for string operations
+#include <stdio.h>            // contains declarations and functions to help with input output operations
 #include <iostream>           // contains declarations and functions to help with input output operations
 #include <fstream>            // predefines a set or operations for handling files related to input and output.
 
@@ -23,7 +23,7 @@ using namespace std;
  * Generates a PDU (Protocol Data Unit) for transferring file meta information
  * https://www.geeksforgeeks.org/protocol-data-unit-pdu/
 */
-T_FILE_META MakeFileMeta(const char *file_name, long size)
+T_FILE_META MakeFileMeta(char *file_name, long size)
 {
     T_FILE_META return_value;
 
@@ -124,7 +124,7 @@ T_FILE_FATAL_ERROR MakeErrorPack(char *buffer, int len)
 /**
  * Computes the file size for a given file name
  */
-long ComputeFileSize(const char *file_name)
+long ComputeFileSize(char *file_name)
 {
     // input file stream constructor
     ifstream in_file (file_name, ios::binary);

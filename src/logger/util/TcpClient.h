@@ -11,8 +11,6 @@
 #include <stdexcept>
 #include <sys/ioctl.h>
 
-#include "../Logger.h"
-
 const int BUFFER_SIZE = 1024;
 
 class TcpClient
@@ -48,62 +46,6 @@ public:
             close(_clientSocket);
             throw std::runtime_error("TcpClient:: Error connecting to the server");
         }
-    }
-
-    u_long IsSerialDataAvailable() {
-        u_long arg = 0;
-        #ifdef WINDOWS_OS
-            if (ioctlsocket(s_, FIONREAD, &arg) != 0)
-        #else
-            if (ioctl(_clientSocket, FIONREAD, &arg) != 0)
-        #endif
-            return 0;
-
-        return arg;
-    }
-
-    /**
-     * Method that receives the bytes from the socket file descriptor _s .
-     * Assigns the bytes received to a string and then returns it.
-     */
-    std::string ReceiveBytes() {
-        std::string ret;
-        char buf[1024];
-
-        while (true) {
-            u_long arg = 1024;
-            /**
-             * Mixing ioctl with select seems to incur a race condition
-             * when data is fragmented, it exits out of the loop.
-             * https://stackoverflow.com/a/18222069
-             */
-            arg = IsSerialDataAvailable();
-
-            if (arg == 0)
-                break;
-
-            if (arg > 1024) arg = 1024;
-
-            int bytesRead;
-            do {
-                bytesRead = recv(_clientSocket, buf, arg, 0);
-            } while (bytesRead == -1 && errno == EINTR);
-
-            if (bytesRead < 0) {
-                // LOG_ERROR("Error reading from client");
-                break;
-            } else if (bytesRead == 0) {
-                //LOG_ERROR("Connection closed by client");
-                break;
-            }
-
-            std::string t;
-
-            t.assign (buf, bytesRead);
-            ret += t;
-        }
-
-        return ret;
     }
 
     ~TcpClient() {

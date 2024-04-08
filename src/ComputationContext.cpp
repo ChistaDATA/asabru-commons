@@ -20,8 +20,23 @@ std::any ComputationContext::Get(const std::string &k)
     }
     else
     {
-        // Handle the case when the key is not found, e.g., return a default value or throw an exception.
-        // Here, we assume Object is a placeholder type; replace it with the actual type you are using.
-        return 0; // Return a default-constructed Object.
+        // Return a default-constructed std::any object if the key is not found.
+        return std::any();
     }
 };
+
+std::string ComputationContext::GetString(const std::string& k) {
+  std::any value_any = Get(k);
+  if (!value_any.has_value()) {
+    std::cout << "Value for key \"" << k << "\" not found." << std::endl;
+    return {};
+  }
+
+  try {
+    return std::any_cast<std::string>(value_any);
+  } catch (const std::bad_any_cast&) {
+    std::cout << "Value for key \"" << k << "\" not a string." << std::endl;
+    return {};
+  }
+}
+

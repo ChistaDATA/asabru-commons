@@ -17,6 +17,9 @@ endif ()
 # Set DEBUG preprocessor flag
 add_compile_definitions(DEBUG)
 
+# add dependencies
+include(../cmake/CPM.cmake)
+
 # Find OpenSSL library
 find_package(OpenSSL REQUIRED)
 
@@ -24,21 +27,38 @@ find_package(OpenSSL REQUIRED)
 find_package(Python COMPONENTS Interpreter Development)
 if (Python_FOUND)
     message(STATUS "Python found: ${Python_EXECUTABLE}")
-else()
+else ()
     message(FATAL_ERROR "Python not found.")
-endif()
+endif ()
 include_directories(${Python_INCLUDE_DIRS})
 
-# TinyXML
-include_directories(../../tinyxml2)
-include_directories(../../stduuid/include)
+CPMAddPackage(
+        NAME nlohmann_json
+        VERSION 3.11.3
+        GITHUB_REPOSITORY nlohmann/json
+        OPTIONS
+            "JSON_BuildTests OFF"
+)
+CPMAddPackage(
+        NAME tinyxml2
+        GITHUB_REPOSITORY leethomason/tinyxml2
+        VERSION 10.0.0
+)
+CPMAddPackage(
+        NAME stduuid
+        GITHUB_REPOSITORY mariusbancila/stduuid
+        VERSION 1.2.3
+)
+CPMAddPackage(
+        NAME jwt-cpp
+        GITHUB_REPOSITORY Thalhammer/jwt-cpp
+        VERSION 0.7.0
+)
 
 # Find SqlLite3
-find_package (SQLite3 REQUIRED)
+find_package(SQLite3 REQUIRED)
 include_directories(${SQLite3_INCLUDE_DIRS})
 
-# Add jwt-cpp library
-include_directories(../../jwt-cpp/include)
 
 # Set source directory
 set(SOURCE_DIRECTORY ".")
@@ -64,14 +84,17 @@ target_include_directories(${PROJECT_NAME}
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${LIB_DIRECTORY}
-        )
+)
 
 target_link_libraries(
         ${PROJECT_NAME}
         PUBLIC OpenSSL::SSL
         PUBLIC ${SQLite3_LIBRARIES}
         PUBLIC ${Python_LIBRARIES}
-        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../tinyxml2/build/libtinyxml2.a
+        nlohmann_json::nlohmann_json
+        stduuid
+        tinyxml2
+        jwt-cpp
 )
 
 

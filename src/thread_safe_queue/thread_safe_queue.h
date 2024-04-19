@@ -7,7 +7,7 @@
 namespace thread_pool
 {
     template <typename T>
-    class TsQueue
+    class ThreadSafeQueue
     {
     public:
         void push(T const& val)

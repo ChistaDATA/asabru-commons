@@ -4,9 +4,9 @@
  * Run: ./main.exe
 */
 #include "LoadBalancer.h"
-#include "RoundRobinStrategy.h"
-#include "RandomStrategy.h"
-#include "WeightedRoundRobinStrategy.h"
+#include "load_balancer/RoundRobinStrategy.h"
+#include "load_balancer/RandomStrategy.h"
+#include "load_balancer/WeightedRoundRobinStrategy.h"
 
 class WeightedServer : public WeightedItem {
 public:

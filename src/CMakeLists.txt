@@ -54,6 +54,11 @@ CPMAddPackage(
         GITHUB_REPOSITORY Thalhammer/jwt-cpp
         GIT_TAG 364a5572
 )
+CPMAddPackage(
+        NAME cpr
+        GITHUB_REPOSITORY libcpr/cpr
+        GIT_TAG 0817715923c9705e68994eb52ef9df3f6845beba
+)
 
 # Find SqlLite3
 find_package(SQLite3 REQUIRED)
@@ -94,6 +99,7 @@ target_link_libraries(
         stduuid
         tinyxml2
         jwt-cpp
+        cpr
 )
 
 

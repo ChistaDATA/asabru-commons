@@ -3,6 +3,11 @@
 #include "AuthenticationStrategy.h"
 #include "CachedFileList.h"
 #include "jwt-cpp/jwt.h"
+#include "logger/Logger.h"
+
+const std::string AUTH_BASIC_USERNAME_KEY = "username";
+const std::string AUTH_BASIC_PASSWORD_KEY = "password";
+const std::string AUTH_BASIC_TOKEN_KEY = "token";
 
 // Concrete imlementation of a basic authentication strategy using json web tokens
 class BasicAuthenticationStrategy : public AuthenticationStrategy
@@ -60,8 +65,8 @@ public:
     void authenticate(ComputationContext *context) const override
     {
 
-        const std::string username = std::any_cast<std::string>(context->Get("username"));
-        const std::string password = std::any_cast<std::string>(context->Get("password"));
+        const std::string username = std::any_cast<std::string>(context->Get(AUTH_BASIC_USERNAME_KEY));
+        const std::string password = std::any_cast<std::string>(context->Get(AUTH_BASIC_PASSWORD_KEY));
 
         if (username == this->username && password == this->password)
         {
@@ -73,21 +78,21 @@ public:
                              .set_expires_in(std::chrono::seconds{expiration})
                              .set_not_before(std::chrono::system_clock::now())
                              .sign(jwt::algorithm::hs256{secret});
-            context->Put("token", token);
-            context->Put("authenticated", true);
+            context->Put(AUTH_BASIC_TOKEN_KEY, token);
+            context->Put(AUTH_AUTHENTICATED_KEY, true);
         }
         else
         {
-            context->Put("authenticated", false);
+            context->Put(AUTH_AUTHENTICATED_KEY, false);
         }
     }
 
     void isAuthenticated(ComputationContext *context) override
     {
-        const std::string token = std::any_cast<std::string>(context->Get("token"));
+        const std::string token = std::any_cast<std::string>(context->Get(AUTH_BASIC_TOKEN_KEY));
         if (blacklistedTokens.find(token))
         {
-            context->Put("authenticated", false);
+            context->Put(AUTH_AUTHENTICATED_KEY, false);
             return;
         }
         try
@@ -97,17 +102,19 @@ public:
                                 .allow_algorithm(jwt::algorithm::hs256{secret})
                                 .with_issuer(jwt_issuer);
             verifier.verify(decoded);
-            context->Put("authenticated", true);
+            auto username = decoded.get_payload_claim("username");
+            context->Put(AUTH_AUTHENTICATED_KEY, true);
+            context->Put(AUTH_AUTHENTICATED_INFO, username.as_string());
         }
         catch (const std::exception &e)
         {
-            context->Put("authenticated", false);
+            context->Put(AUTH_AUTHENTICATED_KEY, false);
         }
     }
 
     void removeAuthentication(ComputationContext *context) override
     {
-        const std::string &token = std::any_cast<std::string>(context->Get("token"));
+        const std::string &token = std::any_cast<std::string>(context->Get(AUTH_BASIC_TOKEN_KEY));
         blacklistedTokens.add(token);
     }
 };

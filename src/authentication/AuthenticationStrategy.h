@@ -6,7 +6,7 @@
 #include "ComputationContext.h"
 
 const std::string AUTH_AUTHENTICATED_KEY = "authenticated";
-const std::string AUTHENTICATION_KEY = "authentication";
+const std::string AUTHENTICATION_STRATEGY_KEY = "authentication";
 const std::string AUTH_AUTHENTICATED_INFO = "authenticated_info";
 
 // Abstract base class for all authentication strategies

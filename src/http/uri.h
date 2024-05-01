@@ -8,6 +8,7 @@
 #include <cctype>
 #include <string>
 #include <utility>
+#include <cstdint>
 
 namespace simple_http_server
 {

@@ -11,6 +11,7 @@
 #include <functional>
 #include <iostream>
 #include <sys/time.h>
+#include <cstdint>
 
 #ifdef WINDOWS_OS
 #include <windows.h>

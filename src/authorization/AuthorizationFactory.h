@@ -3,10 +3,6 @@
 #include "AfcasAuthorizationStrategy.h"
 #include "AuthorizationStrategy.h"
 #include "logger/Logger.h"
-#include "afcas/Operation.h"
-#include "afcas/Principal.h"
-#include "afcas/Resource.h"
-#include "afcas/ResourceAccessPredicate.h"
 #include "tinyxml2.h"
 #include <vector>
 

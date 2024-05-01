@@ -2,10 +2,10 @@
 #define AFCAS_CLIENT_H
 
 #include <string>
-#include "Principal.h"
-#include "Resource.h"
-#include "Operation.h"
-#include "ResourceAccessPredicate.h"
+#include "authorization/Principal.h"
+#include "authorization/Resource.h"
+#include "authorization/Operation.h"
+#include "authorization/ResourceAccessPredicate.h"
 #include <vector>
 #include <map>
 

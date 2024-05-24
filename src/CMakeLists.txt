@@ -33,13 +33,6 @@ endif ()
 include_directories(${Python_INCLUDE_DIRS})
 
 CPMAddPackage(
-        NAME nlohmann_json
-        VERSION 3.11.3
-        GITHUB_REPOSITORY nlohmann/json
-        OPTIONS
-            "JSON_BuildTests OFF"
-)
-CPMAddPackage(
         NAME tinyxml2
         GITHUB_REPOSITORY leethomason/tinyxml2
         VERSION 10.0.0
@@ -95,7 +88,6 @@ target_link_libraries(
         PUBLIC OpenSSL::SSL
         PUBLIC ${SQLite3_LIBRARIES}
         PUBLIC ${Python_LIBRARIES}
-        nlohmann_json::nlohmann_json
         stduuid
         tinyxml2
         jwt-cpp

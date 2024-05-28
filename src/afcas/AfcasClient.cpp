@@ -1,9 +1,44 @@
 #include "AfcasClient.h"
-#include "cpr/cpr.h"
+#include "CommandDispatcher.h"
+#include "http/http_message.h"
 #include "nlohmann/json.hpp"
-#include "../logger/Logger.h"
 
+struct HttpResponse {
+	std::string response;
+	std::string response_content;
+};
+HttpResponse sendRequest(const std::string& host,
+						const std::string& port,
+						const std::string& requestUri,
+						simple_http_server::HttpMethod method,
+						const std::string& content,
+						const std::string& contentType) {
+	// Resolve the Handler class
+	CommandDispatcher::RegisterCommand<BaseComputationCommand>(
+		"HTTPRequestCommand");
+	ComputationContext context;
 
+	// Set up request parameters
+	context.Put("host", host);
+	context.Put("port", port);
+	context.Put("method", method);
+	context.Put("requestUri", requestUri);
+
+	// Construct JSON payload
+	context.Put("content", content);
+	context.Put("content-type", contentType);
+
+	// Dispatch HTTP request command
+	if (!CommandDispatcher::Dispatch("HTTPRequestCommand", &context)) {
+		LOG_ERROR("Failed to dispatch HTTP request command.");
+		return {""};
+	}
+
+	// Retrieve and validate response
+	std::string response = context.GetString("response");
+	std::string response_content = context.GetString("response_content");
+	return { response, response_content };
+}
 // call the Afacas API to add a principal // POST /authorization-management/principals
 // {
 //   "name": "string",
@@ -23,10 +58,16 @@ void AfcasClient::addPrincipal(const Principal& principal) {
         {"principalType", principal.getPrincipalType()}
     };
 
-    cpr::Response r = cpr::Post(cpr::Url{this->host + ":" + this->port + "/authorization-management/principals"},
-                                cpr::Body{json.dump()},
-                                cpr::Header{{"Content-Type", "application/json"}});
-    if (r.status_code != 200) {
+	std::string response = sendRequest(
+		this->host,
+		this->port,
+		"/authorization-management/principals",
+		simple_http_server::HttpMethod::POST,
+		json.dump(),
+		"application/json"
+	).response;
+
+    if (response.empty()) {
         LOG_ERROR("Failed to add principal");
         throw std::runtime_error("Failed to add principal");
     }
@@ -42,10 +83,16 @@ void AfcasClient::addResource(const Resource& resource) {
         {"name", resource.getName()}
     };
 
-    cpr::Response r = cpr::Post(cpr::Url{this->host + ":" + this->port + "/authorization-management/resources"},
-                                cpr::Body{json.dump()},
-                                cpr::Header{{"Content-Type", "application/json"}});
-    if (r.status_code != 200) {
+	std::string response = sendRequest(
+		this->host,
+		this->port,
+		"/authorization-management/resources",
+		simple_http_server::HttpMethod::POST,
+		json.dump(),
+		"application/json"
+		).response;
+    if (response.empty()) {
+		LOG_ERROR("Failed to add resource");
         throw std::runtime_error("Failed to add resource");
     }
 }
@@ -63,10 +110,15 @@ void AfcasClient::addOperation(const Operation& operation) {
         {"description", operation.getDescription()}
     };
 
-    cpr::Response r = cpr::Post(cpr::Url{this->host + ":" + this->port + "/authorization-management/operations"},
-                                cpr::Body{json.dump()},
-                                cpr::Header{{"Content-Type", "application/json"}});
-    if (r.status_code != 200) {
+	std::string response = sendRequest(
+		this->host,
+		this->port,
+		"/authorization-management/operations",
+		simple_http_server::HttpMethod::POST,
+		json.dump(),
+		"application/json"
+	).response;
+	if (response.empty()) {
         throw std::runtime_error("Failed to add operation");
     }
 }
@@ -86,18 +138,15 @@ void AfcasClient::addResourceAccessPredicate(const ResourceAccessPredicate& reso
         {"predicateType", resourceAccessPredicate.getPredicateType()}
     };
 
-    cpr::Response r = cpr::Post(cpr::Url{this->host + ":" + this->port + "/authorization-management/permissions"},
-                                cpr::Body{json.dump()},
-                                cpr::Header{{"Content-Type", "application/json"}});
-
-    if (r.status_code != 200) {
-        if (r.status_code == 500) {
-            nlohmann::json responseBody = nlohmann::json::parse(r.text);
-            if (responseBody["message"].get<std::string>().find("duplicate key value violates unique constraint") != std::string::npos) {
-                return;
-            }
-        }
-
+	std::string response = sendRequest(
+		this->host,
+		this->port,
+		"/authorization-management/permissions",
+		simple_http_server::HttpMethod::POST,
+		json.dump(),
+		"application/json"
+	).response;
+	if (response.empty()) {
         throw std::runtime_error("Failed to add resource access predicate");
     }
 }
@@ -118,32 +167,36 @@ void AfcasClient::addResourceAccessPredicate(const ResourceAccessPredicate& reso
 bool AfcasClient::isAuthorized(const std::string& principalName,
                                 const std::string& operationId,
                                 const std::string& resourceId) {
-    cpr::Response r = cpr::Get(cpr::Url{this->host + ":" + this->port + "/authorization-provider/is-authorized"},
-                                cpr::Parameters{{"principalId", principalName},
-                                                {"operationId", operationId},
-                                                {"resourceId", resourceId}});
-    if (r.status_code != 200) {
+	HttpResponse res = sendRequest(
+		this->host,
+		this->port,
+		"/authorization-provider/is-authorized?principalId=" + principalName + "&operationId=" + operationId + "&resourceId=" + resourceId,
+		simple_http_server::HttpMethod::GET,
+		"",
+		"application/json"
+	);
+	if (res.response.empty()) {
         throw std::runtime_error("Failed to check authorization");
     }
 
-    nlohmann::json responseBody = nlohmann::json::parse(r.text);
+    nlohmann::json responseBody = nlohmann::json::parse(res.response_content);
     return responseBody["data"].get<bool>();
 }
 
 void AfcasClient::runMigration() {
-    for (auto principal : this->principals) {
+    for (const auto& principal : this->principals) {
         this->addPrincipal(principal);
     }
 
-    for (auto resource : this->resources) {
+    for (const auto& resource : this->resources) {
         this->addResource(resource);
     }
 
-    for (auto operation : this->operations) {
+    for (const auto& operation : this->operations) {
         this->addOperation(operation);
     }
 
-    for (auto resourceAccessPredicate : this->resourceAccessPredicates) {
+    for (const auto& resourceAccessPredicate : this->resourceAccessPredicates) {
         this->addResourceAccessPredicate(resourceAccessPredicate);
     }
 }

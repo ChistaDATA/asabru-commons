@@ -18,7 +18,6 @@ class AuthorizationFactory {
 		} else {
 			auto error = "Unknown authorization strategy type: " + type;
 			LOG_ERROR(error);
-			throw std::runtime_error(error);
 		}
 		return nullptr;
 	}

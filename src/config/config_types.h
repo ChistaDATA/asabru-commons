@@ -6,13 +6,14 @@
 
 typedef struct
 {
-    std::string ipaddress; // ip address of the Remote Endpoint
-    int port;              // target port to which proxy connects
-    int r_w;               //  Read Endpoint or Write EndPoint
-    std::string alias;     //  unused
-    float reserved;        //  unused
-    char Buffer[255];      // unused
-    int weight;            // This property will be used in the case of weighted round robin load balancing
+    std::string ipaddress; 			// ip address of the Remote Endpoint
+    int port;              			// target port to which proxy connects
+    int r_w;               			//  Read Endpoint or Write EndPoint
+    std::string alias;     			//  unused
+    float reserved;        			//  unused
+    char Buffer[255];      			// unused
+    int weight;            			// To load balance connections based on weight
+	std::string source_hostname;    // To redirect the requests based on source hostname match
 } RESOLVED_SERVICE;
 
 typedef struct

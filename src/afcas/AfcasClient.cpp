@@ -20,7 +20,7 @@ HttpResponse sendRequest(const std::string& host,
 
 	// Set up request parameters
 	context.Put("host", host);
-	context.Put("port", port);
+	context.Put("port", std::stoi(port));
 	context.Put("method", method);
 	context.Put("requestUri", requestUri);
 

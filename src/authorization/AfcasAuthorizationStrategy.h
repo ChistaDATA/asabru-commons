@@ -27,6 +27,7 @@ class AfcasAuthorizationStrategy : public BaseAuthorizationStrategy {
               parseInitData(context);
               return principals;
           }(),
+        this->groups,
 			  this->resources,
         this->operations,
         this->accessPredicates) {

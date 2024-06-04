@@ -6,6 +6,7 @@
 #include "authorization/Resource.h"
 #include "authorization/Operation.h"
 #include "authorization/ResourceAccessPredicate.h"
+#include "authorization/Group.h"
 #include <vector>
 #include <map>
 
@@ -13,18 +14,20 @@ class AfcasClient {
 public:
     // Constructor using member initializer list
     AfcasClient(const std::string& host,
-                 const std::string& port,
+                const std::string& port,
                 std::vector<Principal> principals,
+                std::vector<Group> groups,
                 std::vector<Resource> resources,
                 std::vector<Operation> operations,
                 std::vector<ResourceAccessPredicate> resourceAccessPredicates)
-        : host(host), port(port), principals(principals),
+        : host(host), port(port), principals(principals), groups(groups),
           resources(resources), operations(operations),
           resourceAccessPredicates(resourceAccessPredicates) {
             runMigration();
           }
     
     void addPrincipal(const Principal& principal);
+    void addGroup(const Group& group);
     void addResource(const Resource& resource);
     void addOperation(const Operation& operation);
     void addResourceAccessPredicate(const ResourceAccessPredicate& resourceAccessPredicate);
@@ -38,6 +41,7 @@ private:
     std::vector<Resource> resources;
     std::vector<Operation> operations;
     std::vector<ResourceAccessPredicate> resourceAccessPredicates;
+    std::vector<Group> groups;
     void runMigration();
 };
 

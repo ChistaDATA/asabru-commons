@@ -4,6 +4,7 @@
 #include "nlohmann/json.hpp"
 
 struct HttpResponse {
+    int status_code;
 	std::string response;
 	std::string response_content;
 };
@@ -29,15 +30,13 @@ HttpResponse sendRequest(const std::string& host,
 	context.Put("content-type", contentType);
 
 	// Dispatch HTTP request command
-	if (!CommandDispatcher::Dispatch("HTTPRequestCommand", &context)) {
-		LOG_ERROR("Failed to dispatch HTTP request command.");
-		return {""};
-	}
+	CommandDispatcher::Dispatch("HTTPRequestCommand", &context);
 
 	// Retrieve and validate response
+    int status_code = std::any_cast<int>(context.Get("status_code"));
 	std::string response = context.GetString("response");
 	std::string response_content = context.GetString("response_content");
-	return { response, response_content };
+	return { status_code, response, response_content };
 }
 // call the Afacas API to add a principal // POST /authorization-management/principals
 // {
@@ -58,20 +57,48 @@ void AfcasClient::addPrincipal(const Principal& principal) {
         {"principalType", principal.getPrincipalType()}
     };
 
-	std::string response = sendRequest(
+	HttpResponse response = sendRequest(
 		this->host,
 		this->port,
 		"/authorization-management/principals",
 		simple_http_server::HttpMethod::POST,
 		json.dump(),
 		"application/json"
-	).response;
+	);
 
-    if (response.empty()) {
-        LOG_ERROR("Failed to add principal");
+    if (response.status_code != 200) {
         throw std::runtime_error("Failed to add principal");
     }
 }
+
+// call the Afacas API to add a group // POST /authorization-management/principals/group-members
+// {
+//   "groupName": "string",
+//   "memberName": "string"
+// }
+
+void AfcasClient::addGroup(const Group& group) {
+    for (auto member : group.getMembers()) {
+        nlohmann::json json = {
+            {"groupName", group.getGroupName()},
+            {"memberName", member}
+        };
+
+        HttpResponse response = sendRequest(
+            this->host,
+            this->port,
+            "/authorization-management/principals/group-members",
+            simple_http_server::HttpMethod::POST,
+            json.dump(),
+            "application/json"
+        );
+
+        if (response.status_code != 200) {
+            throw std::runtime_error("Failed to add group");
+        }
+    }
+}
+
 
 // call the Afacas API to add a resource // POST /authorization-management/resources
 //   "id": "string",
@@ -83,16 +110,16 @@ void AfcasClient::addResource(const Resource& resource) {
         {"name", resource.getName()}
     };
 
-	std::string response = sendRequest(
+	HttpResponse response = sendRequest(
 		this->host,
 		this->port,
 		"/authorization-management/resources",
 		simple_http_server::HttpMethod::POST,
 		json.dump(),
 		"application/json"
-		).response;
-    if (response.empty()) {
-		LOG_ERROR("Failed to add resource");
+		);
+
+    if (response.status_code != 200) {
         throw std::runtime_error("Failed to add resource");
     }
 }
@@ -110,15 +137,16 @@ void AfcasClient::addOperation(const Operation& operation) {
         {"description", operation.getDescription()}
     };
 
-	std::string response = sendRequest(
+	HttpResponse response = sendRequest(
 		this->host,
 		this->port,
 		"/authorization-management/operations",
 		simple_http_server::HttpMethod::POST,
 		json.dump(),
 		"application/json"
-	).response;
-	if (response.empty()) {
+	);
+
+    if (response.status_code != 200) {
         throw std::runtime_error("Failed to add operation");
     }
 }
@@ -138,17 +166,43 @@ void AfcasClient::addResourceAccessPredicate(const ResourceAccessPredicate& reso
         {"predicateType", resourceAccessPredicate.getPredicateType()}
     };
 
-	std::string response = sendRequest(
+	HttpResponse response = sendRequest(
 		this->host,
 		this->port,
 		"/authorization-management/permissions",
 		simple_http_server::HttpMethod::POST,
 		json.dump(),
 		"application/json"
-	).response;
-	if (response.empty()) {
+	);
+
+    if (response.status_code == 500 && response.response_content.find("already exists") != std::string::npos) {
+        return;
+    }
+
+    if (response.status_code != 200) {
         throw std::runtime_error("Failed to add resource access predicate");
     }
+}
+
+nlohmann::json processResponse(const std::string& response) {
+  // Find the start and end indices of the JSON data
+  size_t start_index = response.find("{");
+  size_t end_index = response.rfind("}");
+
+  // Check if valid JSON content is found
+  if (start_index == std::string::npos || end_index == std::string::npos) {
+    throw std::invalid_argument("Invalid JSON format");
+  }
+
+  // Extract the JSON data
+  std::string json_string = response.substr(start_index, end_index - start_index + 1);
+
+  // Parse the JSON data
+  try {
+    return nlohmann::json::parse(json_string);
+  } catch (const nlohmann::detail::exception& e) {
+    throw std::invalid_argument(std::string("Error parsing JSON: ") + e.what());
+  }
 }
 
 // call the Afacas API to get all principals // GET /authorization-provider/is-authorized
@@ -175,11 +229,12 @@ bool AfcasClient::isAuthorized(const std::string& principalName,
 		"",
 		"application/json"
 	);
-	if (res.response.empty()) {
+
+    if (res.status_code != 200) {
         throw std::runtime_error("Failed to check authorization");
     }
 
-    nlohmann::json responseBody = nlohmann::json::parse(res.response_content);
+    nlohmann::json responseBody = processResponse(res.response_content);
     return responseBody["data"].get<bool>();
 }
 

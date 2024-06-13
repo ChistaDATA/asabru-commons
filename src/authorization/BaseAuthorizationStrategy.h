@@ -3,6 +3,7 @@
 #include "Operation.h"
 #include "Principal.h"
 #include "Resource.h"
+#include "Group.h"
 #include "ResourceAccessPredicate.h"
 #include "afcas/AfcasClient.h"
 #include "logger/Logger.h"
@@ -27,7 +28,8 @@ class BaseAuthorizationStrategy: public AuthorizationStrategy {
 	std::vector<Principal> principals;
 	std::vector<Resource> resources;
 	std::vector<Operation> operations;
-	std::vector<ResourceAccessPredicate> accessPredicates;
+	std::vector<Group> groups;
+	std::vector<ResourceAccessPredicate> accessPredicates;	
 	void parseInitData(ComputationContext *context) {
 		auto data = std::any_cast<std::string>(context->Get(AUTHORIZATION_DATA_KEY));
 		tinyxml2::XMLDocument doc;
@@ -62,6 +64,31 @@ class BaseAuthorizationStrategy: public AuthorizationStrategy {
 			LOG_ERROR(error);
 			throw std::runtime_error(error);
 		}
+		
+		tinyxml2::XMLElement *groupsElement = rootElement->FirstChildElement("groups");
+		if (groupsElement) {
+			tinyxml2::XMLElement *groupElement = groupsElement->FirstChildElement("group");
+			while (groupElement) {
+				std::string groupName = groupElement->FirstChildElement("Name")->GetText();
+				std::vector<std::string> members;
+				tinyxml2::XMLElement *membersElement = groupElement->FirstChildElement("Members");
+				if (membersElement) {
+					tinyxml2::XMLElement *memberElement = membersElement->FirstChildElement("Member");
+					while (memberElement) {
+						members.push_back(memberElement->GetText());
+						memberElement = memberElement->NextSiblingElement("Member");
+					}
+				}
+				Group g(groupName, members);
+				groups.push_back(g);
+				groupElement = groupElement->NextSiblingElement("group");
+			}
+		} else {
+			auto error = "Error parsing afcas data: groups element not found";
+			LOG_ERROR(error);
+			throw std::runtime_error(error);
+		}
+
 
 		tinyxml2::XMLElement *operationsElement = rootElement->FirstChildElement("operations");
 		if (operationsElement) {

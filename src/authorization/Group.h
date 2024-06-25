@@ -2,6 +2,7 @@
 #define GROUP_H
 
 #include <string>
+#include <vector>
 
 class Group {
 public:

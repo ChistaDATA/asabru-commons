@@ -30,7 +30,7 @@
 static uint32_t readInt32(std::string buffer, int start, int length = 4) {
 	const std::string packet_length_nw_bytes = buffer.substr(start, length);
 	uint32_t packet_length_nw = 0;
-	memcpy(&packet_length_nw, &packet_length_nw_bytes, length);
+	memcpy(&packet_length_nw, &packet_length_nw_bytes[0], length);
 	const uint32_t packet_length = le32toh(packet_length_nw);
 	return packet_length;
 }
@@ -51,7 +51,7 @@ static uint16_t readLEInt16(std::string buffer, int start) {
 	const int length = 2;
 	const std::string packet_length_nw_bytes = buffer.substr(start, length);
 	uint32_t packet_length_nw = 0;
-	memcpy(&packet_length_nw, &packet_length_nw_bytes, length);
+	memcpy(&packet_length_nw, &packet_length_nw_bytes[0], length);
 	const uint32_t packet_length = le16toh(packet_length_nw);
 	return packet_length;
 }
@@ -62,7 +62,7 @@ static uint32_t readLEInt24(std::string buffer, int start) {
 	// if size if 3, make it 4 bytes by adding a null byte at the end
 	packet_length_nw_bytes += char(0x00);
 	uint32_t packet_length_nw = 0;
-	memcpy(&packet_length_nw, &packet_length_nw_bytes, length + 1);
+	memcpy(&packet_length_nw, &packet_length_nw_bytes[0], length + 1);
 	const uint32_t packet_length = le32toh(packet_length_nw);
 	return packet_length;
 }
@@ -71,7 +71,7 @@ static uint64_t readLEInt64(std::string buffer, int start) {
 	const int length = 8;
 	const std::string packet_length_nw_bytes = buffer.substr(start, length);
 	uint64_t packet_length_nw = 0;
-	memcpy(&packet_length_nw, &packet_length_nw_bytes, length);
+	memcpy(&packet_length_nw, &packet_length_nw_bytes[0], length);
 	const uint64_t packet_length = le64toh(packet_length_nw);
 	return packet_length;
 };
@@ -80,7 +80,7 @@ static uint16_t readBEInt16(std::string buffer, int start) {
 	const int length = 2;
 	const std::string packet_length_nw_bytes = buffer.substr(start, length);
 	uint16_t packet_length_nw = 0;
-	memcpy(&packet_length_nw, &packet_length_nw_bytes, length);
+	memcpy(&packet_length_nw, &packet_length_nw_bytes[0], length);
 	return be16toh(packet_length_nw);
 }
 
@@ -88,7 +88,7 @@ static uint32_t readBEInt32(std::string buffer, int start) {
 	const int length = 4;
 	const std::string packet_length_nw_bytes = buffer.substr(start, length);
 	uint32_t packet_length_nw = 0;
-	memcpy(&packet_length_nw, &packet_length_nw_bytes, length);
+	memcpy(&packet_length_nw, &packet_length_nw_bytes[0], length);
 	return be32toh(packet_length_nw);
 }
 
@@ -96,7 +96,7 @@ static uint64_t readBEInt64(std::string buffer, int start) {
 	const int length = 8;
 	const std::string packet_length_nw_bytes = buffer.substr(start, length);
 	uint64_t packet_length_nw = 0;
-	memcpy(&packet_length_nw, &packet_length_nw_bytes, length);
+	memcpy(&packet_length_nw, &packet_length_nw_bytes[0], length);
 	return be64toh(packet_length_nw);
 }
 

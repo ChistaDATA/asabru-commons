@@ -1,5 +1,8 @@
 #include "ProtocolHelper.h"
 #include "Utils.h"
+#include <netinet/tcp.h>
+
+#define CHISTA_TCP_KEEPINTVL 75 // TCP keep alive interval in seconds
 
 std::string ProtocolHelper::GetIPAddressAsString(struct sockaddr_in *client_addr)
 {
@@ -33,11 +36,29 @@ bool ProtocolHelper::SetReadTimeOut(SOCKET s, long second)
 
 bool ProtocolHelper::SetKeepAlive(SOCKET s, int flags)
 {
-    if (setsockopt(s, SOL_SOCKET, SO_KEEPALIVE, (void *)&flags, sizeof(flags)) != SOCKET_ERROR) {
-        return true;
+    if (setsockopt(s, SOL_SOCKET, SO_KEEPALIVE, (void *)&flags, sizeof(flags)) == SOCKET_ERROR) {
+        perror("ERROR: setsocketopt(), SO_KEEPALIVE");
+        return false;
     }
-    perror("ERROR: setsocketopt(), SO_KEEPALIVE");
-    return false;
+    int tcp_keep_time = CHISTA_TCP_KEEPINTVL;
+#if defined(TCP_KEEPIDLE)
+    // using the same value for TCP_KEEPIDLE and TCP_KEEPINTVL
+    if (setsockopt(s, IPPROTO_TCP, TCP_KEEPIDLE, (void *)&tcp_keep_time, sizeof(int)) == SOCKET_ERROR) {
+        perror("ERROR: setsocketopt(), TCP_KEEPIDLE");
+        return false;
+    }
+    if (setsockopt(s, IPPROTO_TCP, TCP_KEEPINTVL, (void *)&tcp_keep_time,
+             sizeof(int)) == SOCKET_ERROR) {
+        perror("ERROR: setsocketopt(), TCP_KEEPINTVL");
+        return false;
+    }
+#elif defined(TCP_KEEPALIVE)
+    if (setsockopt(s, IPPROTO_TCP, TCP_KEEPALIVE, &tcp_keep_time, sizeof(tcp_keep_time))) {
+        perror("ERROR: setsocketopt(), TCP_KEEPALIVE");
+        return false;
+    }
+#endif
+    return true;
 }
 
 bool ProtocolHelper::ReadSocketBuffer(SOCKET s, char *bfr, int size, int *num_read)
